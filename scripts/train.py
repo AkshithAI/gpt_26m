@@ -8,7 +8,6 @@ from src.gpt import GPT
 from src.config import config
 from src.tokenizer import tokenizer
 from src.dataloader import train_loader,val_loader
-from src.dataloader import train_loader,val_loader
 from .test_generate import generate
 from torch.optim import AdamW
 import torch.nn as nn
@@ -73,7 +72,7 @@ def train():
 
             inputs = input_ids[:,:-1]
             targets = input_ids[:,1:]
-            with autocast(device_type = config.device,dtype = torch.float16):
+            with autocast(device_type = config.device,dtype = torch.bfloat16):
                 logits,_ = model(inputs,attn_mask[:,:-1],use_rope = True)
                 logits_view = logits.contiguous().view(-1,config.vocab_size)
                 targets_view = targets.contiguous().view(-1)
@@ -224,7 +223,7 @@ def train():
     })
     
     wandb.finish()    
-    
+
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     os.environ["TOKENIZERS_PARALLELISM"] = "false"

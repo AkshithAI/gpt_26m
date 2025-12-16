@@ -10,18 +10,24 @@ from tqdm import tqdm
 def generate(model,device,tokenizer,seed_txt,max_len = 200):
     temp = 0.6
     model.eval()
+    
+    # Clear KV cache before starting generation
+    model.clear_kv_cache()
+    
     start_pos = 0
     seed_tokens = torch.tensor([tokenizer.bos_token_id] + tokenizer.encode(seed_txt),device = device).unsqueeze(0)
     attn_mask = torch.ones_like(seed_tokens[:,:-1]).to(device)
-    model(seed_tokens[:,:-1],attn_mask,start_pos,use_rope = True)
-    start_pos = seed_tokens.size(1) - 1  # Sequence length of processed tokens
+    
+    # Prefill: process the seed tokens with KV caching enabled
+    model(seed_tokens[:,:-1], attn_mask, start_pos, use_rope=True, use_cache=True)
+    start_pos = seed_tokens.size(1) - 1  
+    
     offset = torch.tensor([[1]],dtype = torch.long,device=device)
     predicted_token = seed_tokens[:, -1:]
     generated = []
     for _ in tqdm(range(max_len)):
-        # Extend mask to cover the position where new token will be stored
         attn_mask = torch.cat([attn_mask, offset], dim=1)
-        logits = model(predicted_token, attn_mask, start_pos, use_rope=True)
+        logits = model(predicted_token, attn_mask, start_pos, use_rope=True, use_cache=True)
         if len(logits.shape) == 4:
             next_token_logits = logits[0, 0, -1, :]  
         elif len(logits.shape) == 3:

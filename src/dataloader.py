@@ -32,8 +32,8 @@ class TinyStoryDataset(Dataset):
 train_data = TinyStoryDataset(train_data["text"])
 val_data = TinyStoryDataset(val_data["text"])
 
-train_loader = DataLoader(train_data,batch_size = 64,shuffle = True,pin_memory = True)
-val_loader = DataLoader(val_data,batch_size = 64,shuffle = False,pin_memory = True)
+train_loader = DataLoader(train_data,batch_size = config.batch_size,shuffle = True,pin_memory = True)
+val_loader = DataLoader(val_data,batch_size = config.batch_size,shuffle = False,pin_memory = True)
 
 
 

@@ -23,8 +23,8 @@ class TransformerDecoderBLK(nn.Module):
             self.norm2 = RMS_Norm(d_model)
             self.ffn = MoE(d_model)
 
-    def forward(self,x,att_mask,start_pos,use_rope = False): 
-        x = x + self.attention(self.norm1(x),att_mask,start_pos,use_rope)
+    def forward(self,x,att_mask,start_pos=0,use_rope=False,use_cache=False): 
+        x = x + self.attention(self.norm1(x),att_mask,start_pos,use_rope,use_cache)
         x = x + self.ffn(self.norm2(x))
         return x
         
@@ -41,13 +41,18 @@ class GPT(nn.Module):
         self.unembedding = nn.Linear(d_model,vocab_size)
         self.dropout = nn.Dropout(config.dropout_rate)
 
-    def forward(self,x,att_mask,start_pos,use_rope = False):
+    def clear_kv_cache(self):
+        """Clear KV cache in all attention layers - call before starting a new generation"""
+        for layer in self.layers:
+            layer.attention.clear_cache()
+
+    def forward(self,x,att_mask,start_pos=0,use_rope=False,use_cache=False):
         batch_size,seq_len = x.shape
         x = self.dropout(self.embeddings(x))
         if not use_rope:
             x = self.pos_encoding(x)
         for layer in self.layers:
-            x = layer(x,att_mask,start_pos,use_rope)
+            x = layer(x,att_mask,start_pos,use_rope,use_cache)
         return self.unembedding(x)  
     
 if __name__ == "__main__":
