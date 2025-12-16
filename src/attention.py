@@ -48,16 +48,15 @@ class MultiHeadAttentionVec(nn.Module):
         
         scores = torch.matmul(Q,K.transpose(-2,-1)) / math.sqrt(self.d_k) #(B,H,S,S)
         
-        # Apply padding mask
         if att_mask is not None:
             pad_mask = att_mask.unsqueeze(1).unsqueeze(1)  # Shape: [B, 1, 1, full_seq_len]
-            scores = scores.masked_fill(pad_mask == 0, float('-inf'))
+            scores = scores.masked_fill(pad_mask == 0, -1e9)
         
         # Apply causal mask during training or prefill (seq_len > 1)
         if self.mask and seq_len > 1:
             full_seq_len = scores.shape[-1]
             causal_mask = torch.tril(torch.ones(seq_len,full_seq_len,dtype=torch.bool,device=x.device))
-            scores = scores.masked_fill(causal_mask == 0,float('-inf'))
+            scores = scores.masked_fill(causal_mask == 0, -1e9)
         
         att_scores = F.softmax(scores,dim=-1)
         final = torch.matmul(att_scores,V).transpose(1,2).contiguous().view(batch_size,seq_len,self.heads * self.d_k)
