@@ -8,6 +8,18 @@ __pycache__/
 *.pyd
 .Python
 
+# Training outputs
+checkpoints/
+*.pth
+*.png
+training_history.png
+
+# Data
+data/
+*.csv
+*.json
+!assets/*.json
+
 # Virtual environments
 venv/
 env/
@@ -21,3 +33,7 @@ ENV/
 
 # OS
 .DS_Store
+
+# Wandb
+wandb/
+
