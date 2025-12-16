@@ -51,7 +51,7 @@ class MultiHeadAttentionVec(nn.Module):
         # Apply padding mask
         if att_mask is not None:
             pad_mask = att_mask.unsqueeze(1).unsqueeze(1)  # Shape: [B, 1, 1, full_seq_len]
-            scores = scores.masked_fill(pad_mask == 0, float('-65504.0'))
+            scores = scores.masked_fill(pad_mask == 0, float('-inf'))
         
         # Apply causal mask during training or prefill (seq_len > 1)
         if self.mask and seq_len > 1:
