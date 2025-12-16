@@ -89,13 +89,15 @@ def train():
             losses.append(loss_value)
             epoch_losses.append(loss_value)
 
-            # Log to wandb every step
-            wandb.log({
-                "train_loss": loss_value,
-                "learning_rate": scheduler.get_last_lr()[0],
-                "grad_norm": grad_norm.item(),
-                "epoch": epoch + 1
-            })
+            # Log to wandb every 50 steps to avoid slowdown
+            if len(losses) % 50 == 0:
+                wandb.log({
+                    "train_loss": loss_value,
+                    "learning_rate": scheduler.get_last_lr()[0],
+                    "grad_norm": grad_norm.item(),
+                    "epoch": epoch + 1,
+                    "step": len(losses)
+                })
 
             progress_bar.set_postfix({
                 "loss": f"{loss_value:.4f}", 
