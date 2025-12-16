@@ -35,7 +35,7 @@ def validate(model,val_loader,criterion,device):
             inputs = input_ids[:,:-1]
             targets = input_ids[:,1:]
 
-            with torch.amp.autocast(device_type = config.device,dtype = torch.float16):
+            with torch.amp.autocast(device_type = config.device,dtype = torch.bfloat16):
                 logits = model(inputs,attn_mask[:,:-1],use_rope = True)
                 logits_view = logits.contiguous().view(-1,config.vocab_size)
                 targets_view = targets.contiguous().view(-1)
@@ -73,7 +73,7 @@ def train():
             inputs = input_ids[:,:-1]
             targets = input_ids[:,1:]
             with autocast(device_type = config.device,dtype = torch.bfloat16):
-                logits,_ = model(inputs,attn_mask[:,:-1],use_rope = True)
+                logits = model(inputs,attn_mask[:,:-1],use_rope = True)
                 logits_view = logits.contiguous().view(-1,config.vocab_size)
                 targets_view = targets.contiguous().view(-1)
                 loss = criterion(logits_view,targets_view)
@@ -251,3 +251,4 @@ if __name__ == "__main__":
         }
     )
     print(f"Total Trainable Parameters : {count_parameters(model)}")
+    train()
