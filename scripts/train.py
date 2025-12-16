@@ -1,4 +1,4 @@
-from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
+from transformers import get_cosine_schedule_with_warmup
 import torch
 import sys
 import os
@@ -9,6 +9,7 @@ from src.config import config
 from src.tokenizer import tokenizer
 from src.dataloader import train_loader,val_loader
 from src.dataloader import train_loader,val_loader
+from .test_generate import generate
 from torch.optim import AdamW
 import torch.nn as nn
 from tqdm import tqdm
@@ -18,6 +19,7 @@ import matplotlib.pyplot as plt
 import os
 import warnings
 import wandb
+import torch.nn.functional as F
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -115,6 +117,26 @@ def train():
         val_losses.append(val_loss)
         print(f"Validation Loss: {val_loss:.4f}")
 
+        # Generate sample text from seed prompts
+        seed_prompts = [
+            "Once upon a time",
+            "The little girl",
+            "In a magical forest",
+            "One sunny day",
+            "There was a brave"
+        ]
+        
+        print("\n" + "="*50)
+        print("Sample Generations:")
+        print("="*50)
+
+        for i, prompt in enumerate(seed_prompts):
+            generated_text = generate(model, config.device, tokenizer, prompt, max_len=100)
+            print(f"\nPrompt {i+1}: {prompt}")
+            print(f"Generated: {generated_text}")  
+       
+        print("="*50 + "\n")
+
         # Save checkpoint for this epoch
         checkpoint_path = f"transformer_checkpoint_epoch_{epoch}.pth"
         torch.save({
@@ -202,6 +224,7 @@ def train():
     })
     
     wandb.finish()    
+    
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
