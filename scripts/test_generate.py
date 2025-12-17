@@ -5,6 +5,7 @@ from src.tokenizer import tokenizer
 from src.config import config
 from src.gpt import GPT
 from tqdm import tqdm
+import os
 
 @torch.inference_mode()
 def generate(model,device,tokenizer,seed_txt,max_len = 200):
@@ -47,10 +48,16 @@ def generate(model,device,tokenizer,seed_txt,max_len = 200):
         
     return tokenizer.decode(generated)  
 if __name__ == "__main__":
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
     device = "cuda" if torch.cuda.is_available() else "cpu"
     seed_txt = "once upon a time"
     model = GPT(config.n_embd,config.n_head,config.n_layer,config.max_seq_len,tokenizer.vocab_size)
-    model.load_state_dict(torch.load("assets/3hr_gpt_model.pth", map_location=device), strict=False)
+    checkpoint = torch.load("assets/transformer_checkpoint_epoch_1.pth", map_location=device)
+    if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+        print(f"Loaded checkpoint from epoch {checkpoint.get('epoch', 'unknown')}")
+    else:
+        model.load_state_dict(checkpoint, strict=False)
     model.to(device)
     st = time.time()
     txt = generate(model,device,tokenizer,seed_txt)

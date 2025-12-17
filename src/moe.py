@@ -5,7 +5,7 @@ from src.config import config
 
 class FeedForwardNet(nn.Module):
     def __init__(self,d_model,dropout = 0.2):
-        super(FeedForwardNet,self).__init__()
+        super().__init__()
         self.d_model = d_model
         self.w_1 = nn.Linear(d_model,4 * d_model)
         self.w_2 = nn.Linear(4 * d_model , d_model)

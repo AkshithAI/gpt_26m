@@ -33,7 +33,7 @@ class RoPE(nn.Module):
 
 class PE_Vec(nn.Module):
     def __init__(self,d_model,max_len = 512):
-        super(PE_Vec,self).__init__()
+        super().__init__()
         pos = torch.arange(0,max_len,dtype = torch.float).unsqueeze(1)
         pe = torch.zeros(max_len,d_model)
         div_term = torch.exp(torch.arange(0,d_model,2) * - math.log(10000)/d_model)

@@ -7,7 +7,7 @@ from src.rope import RoPE
 
 class MultiHeadAttentionVec(nn.Module):
     def __init__(self,d_model,heads = 8,mask = True):
-        super(MultiHeadAttentionVec,self).__init__()
+        super().__init__()
         assert d_model % heads == 0
         self.d_model = d_model
         self.heads = heads

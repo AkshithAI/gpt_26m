@@ -11,6 +11,7 @@ __pycache__/
 # Training outputs
 checkpoints/
 *.pth
+!assets/transformer_checkpoint_epoch_1.pth
 *.png
 training_history.png
 

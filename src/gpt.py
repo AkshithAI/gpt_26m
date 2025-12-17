@@ -8,7 +8,7 @@ from src.tokenizer import tokenizer
 
 class TransformerDecoderBLK(nn.Module):
     def __init__(self,d_model,heads,use_rope = False):
-        super(TransformerDecoderBLK,self).__init__()
+        super().__init__()
         self.d_model = d_model
         self.heads = heads
         self.use_rope = use_rope
@@ -30,7 +30,7 @@ class TransformerDecoderBLK(nn.Module):
         
 class GPT(nn.Module):
     def __init__(self,d_model,heads,depth,max_len,vocab_size):
-        super(GPT,self).__init__()
+        super().__init__()
         self.d_model = d_model
         self.heads = heads
         self.max_len = max_len
