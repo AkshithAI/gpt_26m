@@ -11,7 +11,6 @@ import os
 def generate(model,device,tokenizer,seed_txt,max_len = 200):
     temp = 0.6
     model.eval()
-    
     # Clear KV cache before starting generation
     model.clear_kv_cache()
     
@@ -50,7 +49,7 @@ def generate(model,device,tokenizer,seed_txt,max_len = 200):
 if __name__ == "__main__":
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    seed_txt = "once upon a time"
+    seed_txt = "In a magical forest"
     model = GPT(config.n_embd,config.n_head,config.n_layer,config.max_seq_len,tokenizer.vocab_size)
     checkpoint = torch.load("assets/transformer_checkpoint_epoch_1.pth", map_location=device)
     if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:

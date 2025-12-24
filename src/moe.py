@@ -26,7 +26,6 @@ class MoE(nn.Module):
     def forward(self,x):
         gate_logits = self.gate(x) 
         xprt_weights,xprt_idxs = torch.topk(gate_logits,config.num_experts_per_tok,dim = -1)
-        # xprt_weights = xprt_weights / xprt_weights.sum(dim = -1 ,keepdim = True)
         xprt_weights = F.softmax(xprt_weights,dim = -1)
         output = torch.zeros_like(x)
         for i,expert in enumerate(self.experts):

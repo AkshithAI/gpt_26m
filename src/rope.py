@@ -13,18 +13,17 @@ class RoPE(nn.Module):
     def precompute_freq_cis(self,end,device):
         freqs = 1.0 / self.rope_theta ** (torch.arange(0,self.dim,2)[:(self.dim//2)].float() / self.dim)
         t = torch.arange(end,device = freqs.device)
-        freqs = torch.outer(t ,freqs) #(seq_len,d_model//2)
+        freqs = torch.outer(t ,freqs) # (seq_len,d_model//2)
         return torch.polar(torch.ones_like(freqs),freqs).to(device) 
 
-    def apply_rotary_emb(self,end,xq,xk,offset : int):
+    def apply_rotary_emb(self,xq,xk,offset : int):
         batch_size, heads, seq_len, d_k = xq.shape
         freq_cis = self.freq_cis[offset:offset+seq_len,:]
-        #print(batch_size, heads, seq_len, d_k)
-        #print(xq.shape,xk.shape)
+
         xq_ = torch.view_as_complex(xq.float().reshape(batch_size, heads, seq_len,-1,2)) # (B,S,d_model//2,2)
         xk_ = torch.view_as_complex(xk.float().reshape(batch_size, heads, seq_len,-1,2)) # (B,S,d_model//2,2)
         freq_cis = freq_cis.unsqueeze(0).unsqueeze(0)
-        # print(xq_.shape,freq_cis.shape)
+
         xq_out = torch.view_as_real(xq_ * freq_cis).flatten(3)
         xk_out = torch.view_as_real(xk_ * freq_cis).flatten(3)
         return xq_out.type_as(xq),xk_out.type_as(xk)
